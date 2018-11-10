@@ -65,7 +65,7 @@ void Camera::apply(Window &window) {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     float aspect = (float)window.width/window.height;
-    gluPerspective(180/M_PI*fovy/2, aspect, 0.01, 100);
+    gluPerspective(180/M_PI*fovy/2, aspect, 0.01, 500);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glTranslatef(0, 0, -dist);
