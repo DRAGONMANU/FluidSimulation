@@ -3,6 +3,7 @@
 #include "gui.hpp"
 #include "lighting.hpp"
 #include "text.hpp"
+#include "render.hpp"
 
 #include <iostream>
 #include <cmath>
@@ -23,6 +24,8 @@ float t = 0;
 bool paused = false;
 
 /////////////////////////////////////////////////
+
+
 
 float rand01()
 {
@@ -63,7 +66,7 @@ std::vector< Particle > particles;
 //PARAMETERS    
 
 const float G = .02f * .25;           // Gravitational Constant for our simulation
-const float spacing = 0.8f;            // Spacing of particles
+const float spacing = 1.0f;            // Spacing of particles
 const float k = spacing / 1000.0f;    // Far pressure weight
 const float k_near = k * 10;          // Near pressure weight
 const float rest_density = 3;         // Rest Density
@@ -175,19 +178,21 @@ IndexType indexsp( 4093, r, false );
 
 void drawStuff() 
 {
-    glPointSize( r*20 );
-    glVertexPointer( 3, GL_FLOAT, sizeof(Particle), &particles[0].pos );
-    glColorPointer( 3, GL_FLOAT, sizeof(Particle), &particles[0].r );
-    glEnableClientState( GL_VERTEX_ARRAY );
-    glEnableClientState( GL_COLOR_ARRAY );
-    glDrawArrays( GL_POINTS, 0, particles.size() );
-    glDisableClientState( GL_VERTEX_ARRAY );
-    glDisableClientState( GL_COLOR_ARRAY );
+    // glPointSize( r*20 );
+    // glVertexPointer( 3, GL_FLOAT, sizeof(Particle), &particles[0].pos );
+    // glColorPointer( 3, GL_FLOAT, sizeof(Particle), &particles[0].r );
+    // glEnableClientState( GL_VERTEX_ARRAY );
+    // glEnableClientState( GL_COLOR_ARRAY );
+    // glDrawArrays( GL_POINTS, 0, particles.size() );
+    // glDisableClientState( GL_VERTEX_ARRAY );
+    // glDisableClientState( GL_COLOR_ARRAY );
 
-    // for( int i = 0; i < (int)particles.size(); ++i )
-    // {
-    //     drawSphere(vec3(particles[i].pos[0],particles[i].pos[1],0),0.1);
-    // }
+    //Draw particles
+    setColor(vec3(0.2f,0.5f,1));
+    for( int i = 0; i < (int)particles.size(); ++i )
+    {
+        drawSphere(vec3(particles[i].pos[0],particles[i].pos[1],particles[i].pos[2]),0.6);
+    }
     
 }
 
@@ -353,7 +358,7 @@ int main(int argc, char **argv)
 {
     window.create("Animation", 1024, 768);
     window.onKeyPress(keyPressed);
-    camera.lookAt(vec3(0,20,30), vec3(0,0,0));
+    camera.lookAt(vec3(0,20,10), vec3(0,0,0));
     lighting.createDefault();
     text.initialize();
 
