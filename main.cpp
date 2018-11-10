@@ -42,10 +42,10 @@ struct Particle
     float g;
     float b;
 
-    vec2 pos;
-    vec2 pos_old;
-    vec2 vel;
-    vec2 force;
+    vec3 pos;
+    vec3 pos_old;
+    vec3 vel;
+    vec3 force;
     float mass;
     float rho;
     float rho_near;
@@ -79,18 +79,21 @@ void init( const unsigned int N )
     {
         for(float x = -w; x <= w; x += r * 0.5f )
         {
-            if( particles.size() > N )
+            for(float z = -w; z <= w; z += r * 0.5f )
             {
-                break;
-            }
+                if( particles.size() > N )
+                {
+                    break;
+                }
 
-            Particle p;
-            p.pos = vec2(x, y);
-            p.pos_old = p.pos;// + 0.001f * glm::vec2(rand01(), rand01());
-            p.force = vec2(0,0);
-            p.sigma = 3.f;
-            p.beta = 4.f;
-            particles.push_back(p);
+                Particle p;
+                p.pos = vec3(x, y,z);
+                p.pos_old = p.pos;// + 0.001f * glm::vec2(rand01(), rand01());
+                p.force = vec3(0,0,0);
+                p.sigma = 3.f;
+                p.beta = 4.f;
+                particles.push_back(p);
+            }
         }
     }
 }
@@ -173,7 +176,7 @@ IndexType indexsp( 4093, r, false );
 void drawStuff() 
 {
     glPointSize( r*20 );
-    glVertexPointer( 2, GL_FLOAT, sizeof(Particle), &particles[0].pos );
+    glVertexPointer( 3, GL_FLOAT, sizeof(Particle), &particles[0].pos );
     glColorPointer( 3, GL_FLOAT, sizeof(Particle), &particles[0].r );
     glEnableClientState( GL_VERTEX_ARRAY );
     glEnableClientState( GL_COLOR_ARRAY );
@@ -207,7 +210,7 @@ void update(float dt)
     {
         particles[i].pos += particles[i].force;
 
-        particles[i].force = vec2( 0.0f, -::G );
+        particles[i].force = vec3( 0.0f, -::G,0.0f );
 
         particles[i].vel = particles[i].pos - particles[i].pos_old;
 
@@ -223,7 +226,10 @@ void update(float dt)
 
         if( particles[i].pos[0] < -SIM_W ) particles[i].force[0] -= ( particles[i].pos[0] - -SIM_W ) / 8;
         if( particles[i].pos[0] >  SIM_W ) particles[i].force[0] -= ( particles[i].pos[0] - SIM_W ) / 8;
+        if( particles[i].pos[2] < -SIM_W ) particles[i].force[2] -= ( particles[i].pos[2] - -SIM_W ) / 8;
+        if( particles[i].pos[2] >  SIM_W ) particles[i].force[2] -= ( particles[i].pos[2] - SIM_W ) / 8;
         if( particles[i].pos[1] < bottom ) particles[i].force[1] -= ( particles[i].pos[1] - bottom ) / 8;
+
         // if( particles[i].pos[1] > SIM_W * 50 ) particles[i].force[1] -= ( particles[i].pos[1] - SIM_W * 50 ) / 8;
 
         particles[i].rho = 0;
@@ -253,7 +259,7 @@ void update(float dt)
         {
             if( neigh[j] == &particles[i] )
                 continue;
-            const vec2 rij = neigh[j]->pos - particles[i].pos;
+            const vec3 rij = neigh[j]->pos - particles[i].pos;
 
             const float rij_len2 = rij.dot(rij);
 
@@ -290,16 +296,16 @@ void update(float dt)
     // PRESSURE FORCE
     for( int i = 0; i < (int)particles.size(); ++i )
     {
-        vec2 dX = vec2( 0,0 );
+        vec3 dX = vec3( 0,0,0 );
         for( const Neighbor& n : particles[i].neighbors )
         {
-            const vec2 rij = (*n.j).pos - particles[i].pos;
+            const vec3 rij = (*n.j).pos - particles[i].pos;
 
             const float dm
                 = n.q * ( particles[i].press + (*n.j).press )
                 + n.q2 * ( particles[i].press_near + (*n.j).press_near );
 
-            const vec2 D = ( rij.normalized() ) * dm;
+            const vec3 D = ( rij.normalized() ) * dm;
             dX += D;
         }
 
@@ -315,15 +321,15 @@ void update(float dt)
 
         for( const Neighbor& n : particles[i].neighbors )
         {
-            const vec2 rij = (*n.j).pos - particles[i].pos;
+            const vec3 rij = (*n.j).pos - particles[i].pos;
             const float l = rij.norm();
             const float q = l / r;
 
-            const vec2 rijn = ( rij / l );
+            const vec3 rijn = ( rij / l );
             const float u = (particles[i].vel - (*n.j).vel).dot(rijn );
             if( u > 0 )
             {
-                const vec2 I
+                const vec3 I
                     = ( 1 - q )
                     * ( (*n.j).sigma * u + (*n.j).beta * u * u )
                     * rijn;
