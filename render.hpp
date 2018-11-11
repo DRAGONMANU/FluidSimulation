@@ -18,7 +18,7 @@ istream& operator>>(istream& is,render& r)
     return is;
 }
 
-ostream& operator>>(ostream& os,const render& r)
+ostream& operator<<(ostream& os,const render& r)
 {
     os<<r.type<<" "<<r.x<<" "<<r.y<<" "<<r.z;
     return os;

@@ -19,6 +19,7 @@ Camera camera;
 Lighting lighting;
 Text text;
 
+
 float dt = 0.001;
 float t = 0;
 bool paused = false;
@@ -60,7 +61,8 @@ struct Particle
 };
 
 std::vector< Particle > particles;
-
+ofstream out("drop.txt");
+        
 
 
 //PARAMETERS    
@@ -178,34 +180,17 @@ IndexType indexsp( 4093, r, false );
 
 void drawStuff() 
 {
-    // glPointSize( r*20 );
-    // glVertexPointer( 3, GL_FLOAT, sizeof(Particle), &particles[0].pos );
-    // glColorPointer( 3, GL_FLOAT, sizeof(Particle), &particles[0].r );
-    // glEnableClientState( GL_VERTEX_ARRAY );
-    // glEnableClientState( GL_COLOR_ARRAY );
-    // glDrawArrays( GL_POINTS, 0, particles.size() );
-    // glDisableClientState( GL_VERTEX_ARRAY );
-    // glDisableClientState( GL_COLOR_ARRAY );
-
-    //Draw particles
-    setColor(vec3(0.2f,0.5f,1));
     for( int i = 0; i < (int)particles.size(); ++i )
     {
         drawSphere(vec3(particles[i].pos[0],particles[i].pos[1],particles[i].pos[2]),0.6);
+        render object;
+        object.type = 0;
+        object.x = particles[i].pos[0];
+        object.y = particles[i].pos[1];
+        object.z = particles[i].pos[2];
+        out<<object;
     }
     
-}
-
-void drawWorld() 
-{
-    camera.apply(window);
-    lighting.apply();
-    clear(vec3(0.9,0.9,0.9));
-    drawStuff();
-    setColor(vec3(0,0,0));
-    text.draw("WASD and LShift/LCtrl to move camera", -0.9, 0.90);
-    text.draw("Mouse to rotate view", -0.9, 0.85);
-    text.draw("Space to play/pause animation", -0.9, 0.80);
 }
 
 void update(float dt) 
@@ -345,33 +330,16 @@ void update(float dt)
     } 
 }
 
-void keyPressed(int key) 
-{
-    // See http://www.glfw.org/docs/latest/group__keys.html for key codes
-    if (key == GLFW_KEY_SPACE)
-        paused = !paused;
-    if (key == GLFW_KEY_Q)
-        exit(0);
-}
-
 int main(int argc, char **argv) 
 {
-    window.create("Animation", 1024, 768);
-    window.onKeyPress(keyPressed);
-    camera.lookAt(vec3(0,20,10), vec3(0,0,0));
-    lighting.createDefault();
-    text.initialize();
-
     init( 1024 );   
 
-    while (!window.shouldClose()) 
+    while (t<0.1)
     {
-        camera.processInput(window);
-        if (!paused)
-            update(dt);
-        window.prepareDisplay();
-        drawWorld();
-        window.updateDisplay();
-        window.waitForNextFrame(dt);
+        update(dt);
+        drawStuff();
+        // if(t%1==0)
+            cout<<t<<"\n";
     }
+    out.close();
 }
